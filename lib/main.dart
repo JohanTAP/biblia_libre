@@ -11,7 +11,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Seleccionar Versículo de la Biblia',
+      debugShowCheckedModeBanner: false,
+      title: 'Biblia Libre',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
