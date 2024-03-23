@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import '../models/modelo.dart';
 import 'package:http/http.dart' as http;
@@ -1133,6 +1134,46 @@ class BibleController {
     } catch (e) {
       // Manejar excepciones de la solicitud HTTP o del parsing JSON
       print('Error al cargar los versículos: $e');
+    }
+  }
+
+  Future<String> fetchRandomVerse() async {
+    // Primero, selecciona un libro al azar
+    Random rand = Random();
+    String randomBook = books[rand.nextInt(books.length)];
+
+    // Luego, obtén la cantidad de capítulos para ese libro
+    final chaptersUrl =
+        'https://api-biblia-libre-default-rtdb.firebaseio.com/libros/$randomBook.json';
+    var chaptersResponse = await http.get(Uri.parse(chaptersUrl));
+    if (chaptersResponse.statusCode == 200) {
+      final chaptersJson = json.decode(chaptersResponse.body);
+      List<dynamic> chaptersList = chaptersJson['capitulos'] as List<dynamic>;
+
+      // Selecciona un capítulo al azar
+      int randomChapter = rand.nextInt(chaptersList.length) +
+          1; // Asumiendo que los capítulos comienzan en 1
+
+      // Ahora, obtén la cantidad de versículos para el capítulo seleccionado
+      final versesUrl =
+          'https://api-biblia-libre-default-rtdb.firebaseio.com/libros/$randomBook/capitulos/$randomChapter.json';
+      var versesResponse = await http.get(Uri.parse(versesUrl));
+      if (versesResponse.statusCode == 200) {
+        final versesJson = json.decode(versesResponse.body);
+        List<dynamic> versesList = versesJson['versiculos'] as List<dynamic>;
+
+        // Selecciona un versículo al azar
+        int randomVerseNumber = rand.nextInt(versesList.length - 1) +
+            1; // Asumiendo que el primer elemento es nulo
+
+        // Construye el versículo aleatorio seleccionado
+        String randomVerse = versesList[randomVerseNumber];
+        return '$randomBook $randomChapter:$randomVerseNumber - $randomVerse';
+      } else {
+        throw Exception('Failed to load verses');
+      }
+    } else {
+      throw Exception('Failed to load chapters');
     }
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'views/vista.dart';
+import 'views/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const BibleSelectionPage(),
+      home: const HomePage(),
+      routes: {
+        '/inicio': (context) => const HomePage(),
+        '/biblia': (context) => const BiblePage(),
+      },
     );
   }
 }
