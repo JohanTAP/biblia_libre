@@ -18,6 +18,16 @@ class _BibleSelectionPageState extends State<BibleSelectionPage> {
     _controller.loadBooks();
   }
 
+  // Nuevo método para manejar la selección de un capítulo y cargar los versículos
+  void _onChapterSelected(int? newValue) async {
+    if (newValue == null) return;
+    setState(() {
+      _controller.selectedChapter = newValue;
+    });
+    await _controller.loadVersesFromAPI();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +52,7 @@ class _BibleSelectionPageState extends State<BibleSelectionPage> {
                   _controller.selectedBook = newValue!;
                   _controller.loadChapters();
                 });
+                _controller.loadVersesFromAPI();
               },
             ),
             const SizedBox(height: 16.0),
@@ -53,12 +64,7 @@ class _BibleSelectionPageState extends State<BibleSelectionPage> {
                   child: Text('Capítulo $chapter'),
                 );
               }).toList(),
-              onChanged: (int? newValue) {
-                setState(() {
-                  _controller.selectedChapter = newValue!;
-                  _controller.loadVerses();
-                });
-              },
+              onChanged: _onChapterSelected,
             ),
             const SizedBox(height: 16.0),
             DropdownButtonFormField<int>(

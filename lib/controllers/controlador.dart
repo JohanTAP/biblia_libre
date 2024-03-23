@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import '../models/modelo.dart';
+import 'package:http/http.dart' as http;
 
 class BibleController {
   late List<String> books;
@@ -1095,7 +1098,6 @@ class BibleController {
   }
 
   void loadVerses() {
-    // Simulate loading verses for the selected book and chapter from a remote API
     verses = [for (var i = 1; i <= 31; i++) i];
     selectedVerse = verses.first;
   }
@@ -1103,5 +1105,34 @@ class BibleController {
   Future<String> fetchVerse() async {
     final verse = BibleVerse(selectedBook, selectedChapter, selectedVerse);
     return await BibleAPI.fetchVerse(verse);
+  }
+
+// Nuevo método para cargar versículos desde la API
+  Future<void> loadVersesFromAPI() async {
+    try {
+      final String url =
+          'https://api-biblia-libre-default-rtdb.firebaseio.com/libros/$selectedBook/capitulos/$selectedChapter/versiculos.json';
+
+      print("URL de la solicitud: $url");
+
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        // Suponiendo que la respuesta es una lista de versículos
+        final List<dynamic> versiculosJson = json.decode(response.body);
+
+        print("Respuesta de la API: ${response.body}");
+
+        // El primer elemento en la lista es nulo, así que lo omitimos y contamos el resto
+        verses = [for (var i = 1; i < versiculosJson.length; i++) i];
+        selectedVerse = verses.isNotEmpty ? verses.first : 0;
+      } else {
+        // Manejar errores de la API o respuestas inesperadas
+        print('Error al cargar los versículos: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Manejar excepciones de la solicitud HTTP o del parsing JSON
+      print('Error al cargar los versículos: $e');
+    }
   }
 }
